@@ -8,11 +8,11 @@ class PreferentialAttachmentDynamicGraph(Scene):
     def construct(self):
         # Initialize the graph
         initial_nodes = 5
-        total_nodes = 100
-        m_edges = 2  # New edges per node
+        total_nodes = 300  # Increased number of nodes
+        m_edges = 3  # New edges per node
 
         G = nx.empty_graph(initial_nodes)
-        pos = nx.kamada_kawai_layout(G)  # More organic layout
+        pos = nx.kamada_kawai_layout(G)  # More natural, free-flowing layout
 
         # Draw initial nodes and edges
         node_circles = {}
@@ -20,7 +20,7 @@ class PreferentialAttachmentDynamicGraph(Scene):
 
         for node in G.nodes():
             x, y = pos[node]
-            circle = Circle(radius=0.1).move_to([x * 3, y * 3, 0])
+            circle = Circle(radius=0.08).move_to([x * 6, y * 6, 0])  # Spread out nodes more
             circle.set_fill(BLUE, opacity=0.8)
             node_circles[node] = circle
             self.add(circle)
@@ -41,16 +41,16 @@ class PreferentialAttachmentDynamicGraph(Scene):
             for target in connected_nodes:
                 G.add_edge(new_node, target)
 
-            # Update node positions using Kamada-Kawai layout for a more natural spread
+            # Update node positions using Kamada-Kawai layout for more natural spread
             pos = nx.kamada_kawai_layout(G)
 
             # Add and animate new node
             x, y = pos[new_node]
-            node_size = 0.1 + 0.02 * G.degree(new_node)
-            new_circle = Circle(radius=node_size).move_to([x * 3, y * 3, 0])
+            node_size = 0.08 + 0.015 * G.degree(new_node)
+            new_circle = Circle(radius=node_size).move_to([x * 6, y * 6, 0])
             new_circle.set_fill(RED, opacity=0.8)
             node_circles[new_node] = new_circle
-            self.play(GrowFromCenter(new_circle), run_time=0.3)
+            self.play(GrowFromCenter(new_circle), run_time=0.2)
 
             # Add dynamically updating edges
             for target in connected_nodes:
@@ -59,7 +59,7 @@ class PreferentialAttachmentDynamicGraph(Scene):
                         source_circle.get_center(),
                         target_circle.get_center(),
                         color=WHITE,
-                        stroke_width=1.5
+                        stroke_width=1.2
                     )
 
                 edge = always_redraw(create_edge_func(node_circles[new_node], node_circles[target]))
@@ -70,14 +70,14 @@ class PreferentialAttachmentDynamicGraph(Scene):
             animations = []
             for node in G.nodes():
                 x, y = pos[node]
-                new_position = np.array([x * 3, y * 3, 0])
-                node_size = 0.1 + 0.02 * G.degree(node)
+                new_position = np.array([x * 6, y * 6, 0])
+                node_size = 0.08 + 0.015 * G.degree(node)
                 animations.append(
                     node_circles[node].animate.move_to(new_position).scale(node_size / node_circles[node].get_width())
                 )
 
             # Play animation for node and edges together
-            self.play(*animations, run_time=0.5)
+            self.play(*animations, run_time=0.4)
 
         self.wait(2)
 
@@ -88,10 +88,10 @@ class PreferentialAttachmentDynamicGraph(Scene):
         # Calculate degree frequency
         degrees = [G.degree(n) for n in G.nodes()]
         degree_count = Counter(degrees)
-        deg, cnt = zip(*sorted(degree_count.items()))  # Sort by degree for a proper line plot
+        deg, cnt = zip(*sorted(degree_count.items()))
 
-        # Plot degree distribution on a log-log scale as a line graph
-        plt.figure(figsize=(8, 6))
+        # Plot degree distribution on a log-log scale
+        plt.figure(figsize=(10, 8))
         plt.plot(deg, cnt, color='blue', marker='o', linestyle='-', linewidth=2)
         plt.xscale('log')
         plt.yscale('log')
