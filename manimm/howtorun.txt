@@ -1,0 +1,9 @@
+python3 -m venv .venv
+
+-linux - source .venv/bin/activate
+-windows - source/Scripts/activate
+
+-run in terminal
+pip install manimgl
+
+manimgl you_file_name your_classname
